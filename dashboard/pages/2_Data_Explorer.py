@@ -18,8 +18,9 @@ root = setup_page(title="Data Explorer", icon="🔎")
 
 page_header(
     "🔎",
-    "Data Explorer & Quality Audit",
-    "Real CGWB Tamil Nadu observations · Data quality · Historical groundwater measurements"
+    "Explore the Groundwater Data",
+    "Browse real CGWB observations, filter the records, understand groundwater-depth patterns "
+    "and check the quality of the dataset."
 )
 
 DATA_PATH = root / "data" / "processed" / "observations_model_ready.csv"
@@ -112,7 +113,7 @@ st.caption(
 
 section_header("Filter observations")
 
-f1, f2, f3 = st.columns(3)
+f1, f2, f3, f4 = st.columns([1, 1, 1, 1.15])
 
 with f1:
     years = sorted(df_full["Observation_Year"].dropna().unique().tolist())
@@ -143,6 +144,20 @@ with f3:
         key="explorer_station_search"
     )
 
+with f4:
+    depth_min = float(df_full["GWL_m_bgl"].min())
+    depth_max = float(df_full["GWL_m_bgl"].max())
+    if depth_min < depth_max:
+        selected_depth = st.slider(
+            "Depth range (m bgl)",
+            min_value=depth_min,
+            max_value=depth_max,
+            value=(depth_min, depth_max),
+            key="explorer_depth_range",
+        )
+    else:
+        selected_depth = (depth_min, depth_max)
+
 df = df_full.copy()
 
 if selected_years:
@@ -162,10 +177,17 @@ if search and station_col:
         )
     ]
 
-st.caption(f"Current filter result: {len(df):,} observations")
+df = df[
+    df["GWL_m_bgl"].between(selected_depth[0], selected_depth[1])
+]
+
+st.caption(
+    f"Showing **{len(df):,} of {len(df_full):,}** cleaned observations "
+    "matching the selected filters."
+)
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "Record Preview",
+    "Browse Records",
     "Depth Distribution",
     "Data Quality",
     "Observation Trends",
@@ -207,14 +229,19 @@ with tab1:
         )
 
         st.caption(
-            f"Showing up to 1,000 rows on screen; CSV download contains "
+            f"Showing up to 1,000 rows on screen; the CSV download contains "
             f"all {len(display_df):,} filtered records."
         )
     else:
         st.warning("No records match the current filters.")
 
 with tab2:
-    section_header("Groundwater depth distribution")
+    section_header("What do the groundwater measurements look like?")
+    st.caption(
+        "The histogram shows how often different groundwater depths occur in the "
+        "filtered records. It describes the measurements in this dataset; it is not "
+        "a groundwater-stress classification."
+    )
 
     if not df.empty:
         fig = px.histogram(
@@ -226,6 +253,20 @@ with tab2:
         )
         fig.update_layout(template="plotly_dark", height=430)
         st.plotly_chart(fig, use_container_width=True)
+
+        box_fig = px.box(
+            df,
+            y="GWL_m_bgl",
+            points="outliers",
+            title="Spread of groundwater depth in the filtered records",
+            labels={"GWL_m_bgl": "Groundwater depth (m bgl)"},
+        )
+        box_fig.update_layout(template="plotly_dark", height=330)
+        st.plotly_chart(box_fig, use_container_width=True)
+        st.caption(
+            "The box plot helps show the median, middle spread and unusually distant "
+            "values. Potential outliers are prompts for review, not automatic errors."
+        )
 
         st.subheader("Descriptive statistics")
 
@@ -244,7 +285,18 @@ with tab2:
         st.warning("No observations are available for this distribution.")
 
 with tab3:
-    section_header("Missing values and data types")
+    section_header("How complete is the cleaned dataset?")
+    q1, q2, q3 = st.columns(3)
+    missing_cells = int(df_full.isna().sum().sum())
+    total_cells = int(df_full.shape[0] * df_full.shape[1])
+    completeness = (1 - missing_cells / total_cells) * 100 if total_cells else 0
+    q1.metric("Overall cell completeness", f"{completeness:.1f}%")
+    q2.metric("Columns", f"{df_full.shape[1]:,}")
+    q3.metric("Rows checked", f"{len(df_full):,}")
+    st.caption(
+        "Completeness is the share of non-missing cells across the cleaned table. "
+        "It is a broad summary and does not mean every column is equally important."
+    )
 
     quality = pd.DataFrame({
         "Column": df_full.columns,
@@ -282,8 +334,51 @@ with tab3:
     )
 
 with tab4:
-    section_header("Groundwater observation history")
+    section_header("How does the observation record change over time?")
+    if not df.empty:
+        yearly = (
+            df.groupby("Observation_Year")
+            .agg(
+                Observations=("GWL_m_bgl", "size"),
+                Mean_Depth=("GWL_m_bgl", "mean"),
+            )
+            .reset_index()
+        )
+        trend_left, trend_right = st.columns(2)
+        with trend_left:
+            yearly_count_fig = px.bar(
+                yearly,
+                x="Observation_Year",
+                y="Observations",
+                title="Observations recorded each year",
+                labels={
+                    "Observation_Year": "Year",
+                    "Observations": "Observation count",
+                },
+            )
+            yearly_count_fig.update_layout(template="plotly_dark", height=350)
+            st.plotly_chart(yearly_count_fig, use_container_width=True)
+        with trend_right:
+            yearly_mean_fig = px.line(
+                yearly,
+                x="Observation_Year",
+                y="Mean_Depth",
+                markers=True,
+                title="Average observed depth by year",
+                labels={
+                    "Observation_Year": "Year",
+                    "Mean_Depth": "Mean depth (m bgl)",
+                },
+            )
+            yearly_mean_fig.update_layout(template="plotly_dark", height=350)
+            st.plotly_chart(yearly_mean_fig, use_container_width=True)
+        st.caption(
+            "The yearly average can be influenced by which stations were sampled "
+            "in each year. It should not be interpreted as a statewide water-level trend "
+            "without accounting for changes in station coverage."
+        )
 
+    section_header("Explore an individual station")
     if station_col and not df.empty:
         station_ids = sorted(
             df[station_col].dropna().astype(str).unique().tolist()

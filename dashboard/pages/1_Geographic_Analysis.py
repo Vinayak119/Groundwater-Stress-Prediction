@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -18,8 +19,9 @@ root = setup_page(title="Geographic Analysis", icon="🗺️")
 
 page_header(
     "🗺️",
-    "Tamil Nadu Geographic Analysis",
-    "Actual CGWB groundwater observations, station coverage and district-level validation."
+    "Groundwater by Location",
+    "Explore where observations were recorded, how groundwater depth varies by station, "
+    "and how the model performed in districts held out from training."
 )
 
 DATA_PATH = root / "data" / "processed" / "observations_model_ready.csv"
@@ -75,7 +77,7 @@ st.info(
     "cleaned CGWB observation file. No synthetic station records are used."
 )
 
-section_header("Observation coverage")
+section_header("At a glance")
 
 c1, c2, c3, c4 = st.columns(4)
 
@@ -95,10 +97,56 @@ c4.metric(
 )
 
 st.caption(
-    f"Observation dates: {df['Parsed_Date'].min():%d %b %Y} to "
+    f"Data coverage: {df['Parsed_Date'].min():%d %b %Y} to "
     f"{df['Parsed_Date'].max():%d %b %Y}. "
     "Station identifiers are provisional and are not verified official well identities."
 )
+
+if district_col:
+    district_summary = (
+        df.dropna(subset=[district_col])
+        .groupby(district_col)
+        .agg(
+            Observations=("GWL_m_bgl", "size"),
+            Stations=(station_col, "nunique") if station_col else ("GWL_m_bgl", "size"),
+            Mean_Depth_m=("GWL_m_bgl", "mean"),
+        )
+        .reset_index()
+        .sort_values("Observations", ascending=False)
+    )
+    section_header("District coverage")
+    st.caption(
+        "See which districts contribute the most measurements. Observation counts "
+        "describe data coverage, not groundwater availability or stress."
+    )
+    left, right = st.columns([1.35, 1])
+    with left:
+        coverage_fig = px.bar(
+            district_summary.head(15).sort_values("Observations"),
+            x="Observations",
+            y=district_col,
+            orientation="h",
+            labels={district_col: "District", "Observations": "Clean observations"},
+            title="Top 15 districts by observation count",
+            color="Observations",
+            color_continuous_scale=["#5B8DEF", "#26C6A0"],
+        )
+        coverage_fig.update_layout(
+            height=430,
+            margin=dict(l=10, r=10, t=55, b=10),
+            coloraxis_showscale=False,
+        )
+        st.plotly_chart(coverage_fig, use_container_width=True)
+    with right:
+        st.markdown("**District data summary**")
+        st.dataframe(
+            district_summary.rename(columns={
+                "Mean_Depth_m": "Mean depth (m bgl)"
+            }).round({"Mean depth (m bgl)": 2}),
+            hide_index=True,
+            use_container_width=True,
+            height=430,
+        )
 
 section_header("Station map")
 
@@ -119,7 +167,18 @@ if lat_col and lon_col:
             map_df[district_col].astype(str).isin(selected_districts)
         ]
 
+    # Keep one latest record per provisional station so the map represents
+    # current available station readings rather than repeated historical points.
+    if station_col:
+        map_df = (
+            map_df.sort_values("Parsed_Date")
+            .dropna(subset=[station_col])
+            .drop_duplicates(subset=[station_col], keep="last")
+        )
+
     if not map_df.empty:
+        map_count = map_df[station_col].nunique() if station_col else len(map_df)
+        st.caption(f"Showing {map_count:,} mapped stations with usable coordinates.")
         fig = make_india_well_map(
             map_df,
             color_col="GWL_m_bgl",
@@ -139,7 +198,12 @@ else:
         "but station time-series analysis remains available."
     )
 
-section_header("Station-level observation history")
+section_header("Explore one station")
+
+st.caption(
+    "Choose a station to inspect its recorded groundwater-depth history. "
+    "The chart uses the original observation dates, including irregular gaps."
+)
 
 if station_col:
     station_ids = sorted(df[station_col].dropna().astype(str).unique().tolist())
@@ -194,13 +258,19 @@ if station_col:
 else:
     st.warning("A provisional station identifier column was not found.")
 
-section_header("Geographic holdout experiment")
+section_header("How well does the model generalise geographically?")
+
+st.caption(
+    "The geographic holdout experiment evaluates the model on selected Tamil Nadu "
+    "districts that were kept out of model training. It is a within-state test, "
+    "not a cross-state validation."
+)
 
 geo = load_csv(str(GEO_PATH))
 district_results = load_csv(str(DISTRICT_PATH))
 
 if geo is not None:
-    st.subheader("Overall geographic holdout metrics")
+    st.subheader("Overall comparison")
     st.dataframe(geo, use_container_width=True, hide_index=True)
     st.caption(
         "This experiment holds out seven Tamil Nadu districts. "
@@ -210,7 +280,8 @@ else:
     st.warning("Geographic holdout summary is unavailable.")
 
 if district_results is not None:
-    st.subheader("District-level performance")
+    st.subheader("Performance by district")
+    st.caption("Lower MAE and RMSE indicate smaller prediction errors.")
     st.dataframe(
         district_results,
         use_container_width=True,

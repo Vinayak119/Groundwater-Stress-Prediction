@@ -1,10 +1,12 @@
 ﻿from pathlib import Path
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from dashboard.components.ui import setup_page, page_header
+from dashboard.components.ui import page_header, setup_page
+
 
 ROOT = Path(__file__).resolve().parents[2]
 METRICS_DIR = ROOT / "results" / "metrics"
@@ -22,15 +24,11 @@ def load_csv(path):
     return pd.read_csv(path)
 
 
-def metric_value(df, model, split, metric):
-    row = df[(df["Model"] == model) & (df["Split"] == split)]
-    return float(row.iloc[0][metric]) if not row.empty else np.nan
-
-
 setup_page("Model Performance", "Evaluation")
 page_header(
-    "Model Performance & Evaluation",
-    "Evidence-based comparison of temporal forecasting models, geographic generalisation and forecast-gap behaviour.",
+    "Model Performance",
+    "See how the models perform on later observations, how results change across "
+    "districts, and whether machine learning improves on a simple baseline.",
 )
 
 missing = [name for name, path in FILES.items() if not path.exists()]
@@ -47,20 +45,24 @@ except Exception as exc:
     st.error(f"Could not load evaluation results: {exc}")
     st.stop()
 
-# Normalise labels for reliable filtering.
+# Normalise labels so filtering is consistent.
 benchmark["Split"] = benchmark["Split"].astype(str).str.lower()
 benchmark["Model"] = benchmark["Model"].astype(str)
 geographic["Model"] = geographic["Model"].astype(str)
 
 st.info(
-    "Evaluation note: the temporal test set and geographic district holdout answer "
-    "different questions. The geographic holdout is an internal district-based "
-    "evaluation, not independent external validation."
+    "The temporal test set and geographic district holdout answer different "
+    "questions. The geographic holdout is an internal Tamil Nadu evaluation, "
+    "not independent external validation."
 )
 
-st.subheader("1. Temporal benchmark")
+st.subheader("1 · Performance on later observations")
+st.caption(
+    "The temporal benchmark trains on earlier data and evaluates on later periods. "
+    "MAE and RMSE are measured in metres; lower values indicate smaller errors. "
+    "For R², higher is generally better."
+)
 
-models = ["Persistence Baseline", "Decision Tree", "Random Forest", "XGBoost", "LightGBM"]
 test_rows = benchmark[benchmark["Split"] == "test"].copy()
 validation_rows = benchmark[benchmark["Split"] == "validation"].copy()
 
@@ -72,37 +74,57 @@ test_best = test_rows.loc[test_rows["MAE"].idxmin()]
 validation_best = validation_rows.loc[validation_rows["MAE"].idxmin()]
 
 a, b, c, d = st.columns(4)
-a.metric("Best validation MAE", f'{validation_best["MAE"]:.3f} m', str(validation_best["Model"]))
-b.metric("Best temporal test MAE", f'{test_best["MAE"]:.3f} m', str(test_best["Model"]))
-persistence_test = test_rows[test_rows["Model"] == "Persistence Baseline"].iloc[0]
-lightgbm_test = test_rows[test_rows["Model"] == "LightGBM"].iloc[0]
+a.metric(
+    "Best validation MAE",
+    f'{validation_best["MAE"]:.3f} m',
+    str(validation_best["Model"]),
+)
+b.metric(
+    "Best temporal test MAE",
+    f'{test_best["MAE"]:.3f} m',
+    str(test_best["Model"]),
+)
+
+persistence_rows = test_rows[test_rows["Model"] == "Persistence Baseline"]
+lightgbm_rows = test_rows[test_rows["Model"] == "LightGBM"]
+if persistence_rows.empty or lightgbm_rows.empty:
+    st.error("The benchmark is missing Persistence Baseline or LightGBM test results.")
+    st.stop()
+
+persistence_test = persistence_rows.iloc[0]
+lightgbm_test = lightgbm_rows.iloc[0]
 c.metric("Persistence test MAE", f'{persistence_test["MAE"]:.3f} m')
 d.metric("LightGBM test MAE", f'{lightgbm_test["MAE"]:.3f} m')
 
 st.markdown(
-    "**Main finding:** LightGBM achieved the lowest validation MAE, but the persistence "
-    "baseline achieved the lowest test MAE. The initial ML models therefore did not "
-    "beat persistence on the overall temporal test set."
+    "**Main takeaway:** LightGBM had the lowest validation MAE, but persistence "
+    "had the lowest MAE on the later temporal test set. The initial machine-learning "
+    "models therefore did not outperform the simple persistence baseline overall."
 )
 
-with st.expander("View complete temporal benchmark table", expanded=True):
+with st.expander("View detailed temporal benchmark results"):
     view = benchmark.copy()
-    view["MAE"] = view["MAE"].map(lambda x: f"{x:.4f}")
-    view["RMSE"] = view["RMSE"].map(lambda x: f"{x:.4f}")
-    view["R2"] = view["R2"].map(lambda x: f"{x:.4f}")
+    for column in ["MAE", "RMSE", "R2"]:
+        view[column] = view[column].map(lambda value: f"{value:.4f}")
     st.dataframe(
         view.sort_values(["Split", "MAE"]),
         hide_index=True,
         use_container_width=True,
     )
 
+models = [
+    "Persistence Baseline",
+    "Decision Tree",
+    "Random Forest",
+    "XGBoost",
+    "LightGBM",
+]
 chart_data = benchmark.copy()
 chart_data["Model"] = pd.Categorical(
-    chart_data["Model"],
-    categories=models,
-    ordered=True,
+    chart_data["Model"], categories=models, ordered=True
 )
-fig = px.bar(
+
+fig_mae = px.bar(
     chart_data,
     x="Model",
     y="MAE",
@@ -111,8 +133,16 @@ fig = px.bar(
     title="Mean Absolute Error by model and temporal split",
     labels={"MAE": "MAE (m)", "Model": "Model"},
 )
-fig.update_layout(legend_title_text="Evaluation split")
-st.plotly_chart(fig, use_container_width=True)
+fig_mae.update_layout(
+    template="plotly_dark",
+    legend_title_text="Evaluation split",
+    height=390,
+    margin=dict(t=55, b=15),
+)
+st.plotly_chart(
+    fig_mae, use_container_width=True, key="temporal_mae_comparison"
+)
+st.caption("MAE is the average absolute difference between predicted and observed levels.")
 
 fig_rmse = px.bar(
     chart_data,
@@ -123,7 +153,16 @@ fig_rmse = px.bar(
     title="Root Mean Squared Error by model and temporal split",
     labels={"RMSE": "RMSE (m)", "Model": "Model"},
 )
-st.plotly_chart(fig_rmse, use_container_width=True)
+fig_rmse.update_layout(
+    template="plotly_dark", height=390, margin=dict(t=55, b=15)
+)
+st.plotly_chart(
+    fig_rmse, use_container_width=True, key="temporal_rmse_comparison"
+)
+st.caption(
+    "RMSE penalises large errors more strongly than MAE, so it helps reveal "
+    "models affected by occasional large misses."
+)
 
 fig_r2 = px.bar(
     chart_data,
@@ -134,10 +173,23 @@ fig_r2 = px.bar(
     title="R² by model and temporal split",
     labels={"R2": "R²", "Model": "Model"},
 )
-st.plotly_chart(fig_r2, use_container_width=True)
+fig_r2.update_layout(
+    template="plotly_dark", height=390, margin=dict(t=55, b=15)
+)
+st.plotly_chart(
+    fig_r2, use_container_width=True, key="temporal_r2_comparison"
+)
+st.caption(
+    "R² describes variation explained relative to a mean-value reference. "
+    "Compare it alongside MAE and RMSE rather than using it alone."
+)
 
 st.divider()
-st.subheader("2. Geographic district holdout")
+st.subheader("2 · Testing in districts held out from training")
+st.caption(
+    "This test asks whether the model can generalise to selected districts it did "
+    "not see during training. It is still an internal Tamil Nadu evaluation."
+)
 
 geo_p = geographic[geographic["Model"].str.lower() == "persistence"]
 geo_l = geographic[geographic["Model"].str.lower() == "lightgbm"]
@@ -158,10 +210,15 @@ if not geo_p.empty and not geo_l.empty:
         f"versus {p['RMSE']:.3f} m for persistence "
         f"({rmse_improvement:.1f}% lower)."
     )
+else:
+    st.warning(
+        "The geographic results do not contain both Persistence and LightGBM rows."
+    )
 
 geo_view = geographic.copy()
-for col in ["MAE", "RMSE", "R2"]:
-    geo_view[col] = geo_view[col].map(lambda x: f"{x:.4f}")
+for column in ["MAE", "RMSE", "R2"]:
+    if column in geo_view.columns:
+        geo_view[column] = geo_view[column].map(lambda value: f"{value:.4f}")
 st.dataframe(geo_view, hide_index=True, use_container_width=True)
 
 fig_geo = px.bar(
@@ -172,20 +229,31 @@ fig_geo = px.bar(
     labels={"MAE": "MAE (m)"},
     text_auto=".3f",
 )
-st.plotly_chart(fig_geo, use_container_width=True)
+fig_geo.update_layout(
+    template="plotly_dark", height=390, margin=dict(t=55, b=15)
+)
+st.plotly_chart(
+    fig_geo, use_container_width=True, key="geographic_holdout_model_chart"
+)
 
 st.caption(
     "The geographic holdout used seven held-out Tamil Nadu districts. "
     "It is not a cross-state or independent external validation."
 )
 
-st.subheader("District-level LightGBM performance")
+st.subheader("Which districts were harder to predict?")
+st.caption(
+    "District-level errors help identify where model predictions were less accurate. "
+    "They do not explain the cause of those errors."
+)
 
 district = district.sort_values("MAE", ascending=True)
 district_display = district.copy()
-for col in ["MAE", "RMSE"]:
-    district_display[col] = district_display[col].map(lambda x: f"{x:.3f}")
-
+for column in ["MAE", "RMSE"]:
+    if column in district_display.columns:
+        district_display[column] = district_display[column].map(
+            lambda value: f"{value:.3f}"
+        )
 st.dataframe(district_display, hide_index=True, use_container_width=True)
 
 fig_district = px.bar(
@@ -198,7 +266,14 @@ fig_district = px.bar(
     hover_data=["Stations", "Predictions", "MAE"],
     text_auto=".2f",
 )
-st.plotly_chart(fig_district, use_container_width=True)
+fig_district.update_layout(
+    template="plotly_dark", height=430, margin=dict(t=55, b=15)
+)
+st.plotly_chart(
+    fig_district,
+    use_container_width=True,
+    key="geographic_district_rmse_chart",
+)
 
 karur = district[district["District"].astype(str).str.lower() == "karur"]
 if not karur.empty:
@@ -209,23 +284,23 @@ if not karur.empty:
     )
 
 st.divider()
-st.subheader("3. Performance by forecast gap")
-
+st.subheader("3 · Does the time between observations matter?")
 st.write(
-    "The next-observation target can occur at different intervals. "
-    "The table and chart below compare persistence and LightGBM across the "
-    "four forecast-gap groups."
+    "The model predicts the next available measurement, so the time gap is not "
+    "always the same. These results compare persistence and LightGBM across four "
+    "gap ranges."
 )
 
 gap_order = ["0-60 days", "61-90 days", "91-120 days", "121-150 days"]
 gap["Gap_Group"] = pd.Categorical(
-    gap["Gap_Group"].astype(str),
-    categories=gap_order,
-    ordered=True,
+    gap["Gap_Group"].astype(str), categories=gap_order, ordered=True
 )
 gap_display = gap.sort_values(["Gap_Group", "Model"]).copy()
-for col in ["MAE", "RMSE", "R2"]:
-    gap_display[col] = gap_display[col].map(lambda x: f"{x:.3f}")
+for column in ["MAE", "RMSE", "R2"]:
+    if column in gap_display.columns:
+        gap_display[column] = gap_display[column].map(
+            lambda value: f"{value:.3f}"
+        )
 st.dataframe(gap_display, hide_index=True, use_container_width=True)
 
 fig_gap = px.bar(
@@ -239,7 +314,12 @@ fig_gap = px.bar(
     labels={"Gap_Group": "Time to next observation", "MAE": "MAE (m)"},
     text_auto=".2f",
 )
-st.plotly_chart(fig_gap, use_container_width=True)
+fig_gap.update_layout(
+    template="plotly_dark", height=390, margin=dict(t=55, b=15)
+)
+st.plotly_chart(
+    fig_gap, use_container_width=True, key="forecast_gap_mae_chart"
+)
 
 st.markdown(
     """
@@ -251,8 +331,7 @@ st.markdown(
 )
 
 st.divider()
-st.subheader("4. Research interpretation and limitations")
-
+st.subheader("4 · What should we take away?")
 st.markdown(
     """
     - **Validation is not the final test:** the lowest validation error does not
@@ -272,11 +351,15 @@ st.markdown(
     """
 )
 
+st.subheader("Download evaluation results")
+st.caption("Download the exact saved result tables used in the charts above.")
+
 st.download_button(
     "Download temporal benchmark CSV",
     data=benchmark.to_csv(index=False).encode("utf-8"),
     file_name="temporal_model_benchmark.csv",
     mime="text/csv",
+    key="download_temporal_benchmark_csv",
 )
 
 st.download_button(
@@ -284,4 +367,5 @@ st.download_button(
     data=geographic.to_csv(index=False).encode("utf-8"),
     file_name="geographic_holdout_results.csv",
     mime="text/csv",
+    key="download_geographic_holdout_csv",
 )
