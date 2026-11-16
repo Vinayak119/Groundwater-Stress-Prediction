@@ -1,0 +1,33 @@
+{
+  "source_observations": 77024,
+  "forecasting_pairs": 64434,
+  "unique_provisional_stations": 1866,
+  "maximum_target_gap_days": 150,
+  "target_definition": "Next available observation within 150 days",
+  "split_basis": "Target date",
+  "split_counts": {
+    "train": 51816,
+    "test": 8836,
+    "validation": 3782
+  },
+  "target_gap_days": {
+    "median": 92.0,
+    "minimum": 0.875,
+    "maximum": 150.0
+  },
+  "split_target_date_ranges": {
+    "test": {
+      "first": "2021-01-10 00:00:00",
+      "last": "2025-01-30 00:00:00"
+    },
+    "train": {
+      "first": "1996-05-15 06:00:00",
+      "last": "2018-11-30 00:00:00"
+    },
+    "validation": {
+      "first": "2019-01-17 06:00:00",
+      "last": "2020-11-30 00:00:00"
+    }
+  },
+  "future_target_gap_used_as_feature": false
+}

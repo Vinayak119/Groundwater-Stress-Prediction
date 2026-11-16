@@ -1,0 +1,7 @@
+Station,Location_A,Location_B,Records_A,Records_B,Overlapping_Dates,First_Overlap,Last_Overlap
+Gudalur2,Theni | KAMBAM | Gudalur | 9.7 | 77.3,Nilgiris | GUDALUR | Gudalur | 11.50917 | 76.48278,97,63,23,2000-05-01,2023-10-11
+Kilpaur,Tirunelveli | Kilapavur | Kilpaur | 8.91667 | 77.38333,Tirunelveli | KADAYAM | Kadayam | 8.83333 | 77.40833,58,43,12,2001-05-01,2013-05-11
+Mettupalayam2,Cuddalore | KURINCHIPADI | Mettupalayam | 11.575 | 79.71528,Coimbatore | KARAMADAI | Mettupalayam | 11.3 | 76.94722,24,64,4,2001-05-01,2005-05-01
+Papparapatti,Dharmapuri | PENNAGARAM | Papparapatti | 12.22 | 78.05944,Salem | SALEM | Papparapatti | 11.52556 | 78.05,87,22,4,2005-05-11,2013-05-11
+Thanjavur,Thanjavur | THANJAVUR | Thanjavur | 10.775 | 79.10833,Thanjavur | BUDALUR | Pudupatti | 10.85417 | 78.95139,97,30,15,1996-05-01,2003-05-11
+Vallam1,Viluppuram | VALLAM | Vallam | 12.25278 | 79.5125,Viluppuram | MELMALAYANUR | Devanur | 12.35278 | 79.375,69,33,14,1999-05-01,2011-05-01

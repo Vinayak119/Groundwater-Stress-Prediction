@@ -1,0 +1,94 @@
+{
+  "training_rows": 51816,
+  "validation_rows": 3227,
+  "test_rows": 8350,
+  "features": [
+    "GWL_m_bgl",
+    "Previous_GWL_m_bgl",
+    "Two_Observations_Back_GWL_m_bgl",
+    "Historical_Mean_GWL_m_bgl",
+    "Historical_Std_GWL_m_bgl",
+    "History_Count",
+    "Days_Since_Previous_Observation",
+    "Current_Month",
+    "Month_Sin",
+    "Month_Cos",
+    "Latitude_num",
+    "Longitude_num"
+  ],
+  "target": "Target_GWL_m_bgl",
+  "imputation": "Median imputation fitted on training data only",
+  "test_used_for_training": false,
+  "results": [
+    {
+      "Model": "Persistence Baseline",
+      "Split": "validation",
+      "MAE": 2.4600650759219085,
+      "RMSE": 5.131560883948557,
+      "R2": 0.5958990692995886
+    },
+    {
+      "Model": "Persistence Baseline",
+      "Split": "test",
+      "MAE": 2.142166465101851,
+      "RMSE": 4.443204595222554,
+      "R2": 0.8531322995623657
+    },
+    {
+      "Model": "Decision Tree",
+      "Split": "validation",
+      "MAE": 2.421381600123937,
+      "RMSE": 3.9706509881415353,
+      "R2": 0.7580563049745698
+    },
+    {
+      "Model": "Decision Tree",
+      "Split": "test",
+      "MAE": 2.5898283981512042,
+      "RMSE": 5.123766925345419,
+      "R2": 0.8046954308347326
+    },
+    {
+      "Model": "Random Forest",
+      "Split": "validation",
+      "MAE": 2.0208425930621217,
+      "RMSE": 3.4945305871039625,
+      "R2": 0.812600438232733
+    },
+    {
+      "Model": "Random Forest",
+      "Split": "test",
+      "MAE": 2.2894616074149394,
+      "RMSE": 4.829913695491729,
+      "R2": 0.8264548772432534
+    },
+    {
+      "Model": "XGBoost",
+      "Split": "validation",
+      "MAE": 1.9905928789280056,
+      "RMSE": 3.5236494395040663,
+      "R2": 0.8094643401422428
+    },
+    {
+      "Model": "XGBoost",
+      "Split": "test",
+      "MAE": 2.322577182219342,
+      "RMSE": 5.161786791763624,
+      "R2": 0.8017862418452741
+    },
+    {
+      "Model": "LightGBM",
+      "Split": "validation",
+      "MAE": 1.967804541936763,
+      "RMSE": 3.442514100310217,
+      "R2": 0.8181378444927557
+    },
+    {
+      "Model": "LightGBM",
+      "Split": "test",
+      "MAE": 2.2404367786593453,
+      "RMSE": 4.958511821623263,
+      "R2": 0.8170904514457474
+    }
+  ]
+}

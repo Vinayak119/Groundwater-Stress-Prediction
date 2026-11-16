@@ -1,0 +1,33 @@
+Provisional_Station_ID,Station,District,Total_Observations,First_Date,Last_Date,Minimum_GWL,Maximum_GWL
+Arasadikuppam__Cuddalore_-_-__11.61444_79.66139,Arasadikuppam,Cuddalore,7,2023-01-01 00:00:00,2024-11-30 00:00:00,5.48,88.61
+C.Keeranur EW__Cuddalore_-_-__11.45694_79.37389,C.Keeranur EW,Cuddalore,5,2023-01-01 00:00:00,2024-08-30 00:00:00,42.15,115.0
+Choladasanpatti pz__Karur_-_-__10.85000_78.00000,Choladasanpatti pz,Karur,5,2023-05-31 00:00:00,2025-01-30 00:00:00,10.82,138.1
+Devarkulam__Tirunelveli_MELANEELITHANALLUR_Devarkulam__8.96667_77.64167,Devarkulam,Tirunelveli,14,1999-08-25 06:00:00,2004-01-05 06:00:00,2.2,58.0
+Elachipalayam__Namakkal_ELACHIPALAYAM_Elachipalayam__11.38556_78.01389,Elachipalayam,Namakkal,7,1998-05-15 06:00:00,2004-11-05 06:00:00,7.6,69.5
+Idaikottai__Dindigul_ODDANCHATRAM_Idaikottai__10.61667_77.84167,Idaikottai,Dindigul,16,1999-05-15 06:00:00,2021-01-10 00:00:00,-0.7,71.24
+Indur__Dharmapuri_NALLAMPALLI_Indur__12.14167_78.06667,Indur,Dharmapuri,10,2000-01-05 06:00:00,2018-01-22 06:00:00,-0.6,55.1
+Irruppu1__Cuddalore_KAMMAPURAM_Irruppu__11.61667_79.42500,Irruppu1,Cuddalore,24,2013-11-05 06:00:00,2023-11-10 00:00:00,0.0,63.5
+Irruppu__Cuddalore_KAMMAPURAM_Irruppu__11.61667_79.42500,Irruppu,Cuddalore,12,2001-11-05 06:00:00,2024-05-30 00:00:00,28.75,140.0
+Kadayampatti__Salem_KADAYAMPATTI_Kadayampatti__11.85417_78.08333,Kadayampatti,Salem,64,1998-05-15 06:00:00,2022-01-30 07:00:00,2.75,61.75
+Karur1__Karur_KARUR_Karur__10.95556_78.09167,Karur1,Karur,17,1999-01-05 06:00:00,2012-05-15 06:00:00,3.15,63.4
+Kattiyankuppam Pz-3__Cuddalore_-_-__11.50361_79.63250,Kattiyankuppam Pz-3,Cuddalore,7,2023-01-01 00:00:00,2024-11-30 00:00:00,22.9,74.26
+Kattusagai(s)__Cuddalore_KURINCHIPADI_Kattusagai(s)__11.65000_79.65000,Kattusagai(s),Cuddalore,24,2013-11-05 06:00:00,2024-11-30 00:00:00,0.0,71.93
+Kettanur__Tiruppur_Pongalur_Kettanur__10.91528_77.26111,Kettanur,Tiruppur,88,1998-11-05 06:00:00,2024-11-30 00:00:00,0.75,95.88
+Kopuvanur1__Cuddalore_VIRUTHACHALAM_Kopuvanur__11.44167_79.31667,Kopuvanur1,Cuddalore,50,1996-01-05 06:00:00,2024-08-30 00:00:00,0.01,298.52
+Mahimapuram OW-2__Ariyalur_-_-__11.34778_79.38417,Mahimapuram OW-2,Ariyalur,8,2023-01-01 00:00:00,2025-01-30 00:00:00,38.74,100.0
+Marungur -I EW__Cuddalore_-_-__11.74361_79.64028,Marungur -I EW,Cuddalore,4,2023-01-01 00:00:00,2024-11-30 00:00:00,100.0,112.0
+Marungur-II OW__Cuddalore_-_-__11.74361_79.64028,Marungur-II OW,Cuddalore,4,2023-01-01 00:00:00,2024-11-30 00:00:00,100.0,116.0
+Pallapalayam pz__Coimbatore_-_-__10.52556_77.21806,Pallapalayam pz,Coimbatore,6,2023-01-01 00:00:00,2025-01-30 00:00:00,3.05,80.31
+Panamarathupatti__Salem_PANAMARATHUPATTI_Panamarathupatti__11.57083_78.18333,Panamarathupatti,Salem,44,1996-01-05 06:00:00,2024-05-30 00:00:00,1.79,159.45
+Ponneri__Tiruvallur_Minjur_Ponneri__13.33000_80.19556,Ponneri,Tiruvallur,9,2012-05-15 06:00:00,2025-01-30 00:00:00,-0.6,100.4
+Pudukottai2__Tuticorin_TUTICORIN_Pudukottai__8.74500_78.06250,Pudukottai2,Tuticorin,39,1996-01-05 06:00:00,2012-01-05 06:00:00,-0.6,68.2
+Pudukurayapetai__Cuddalore_KAMMAPURAM_Pudukurayapetai__11.52083_79.35000,Pudukurayapetai,Cuddalore,59,1996-01-05 06:00:00,2015-01-05 06:00:00,3.4,150.4
+Sendarpatti__Salem_GANGAVALLI_Sendarpatti__11.43750_78.50000,Sendarpatti,Salem,81,1998-05-15 06:00:00,2024-08-30 00:00:00,0.52,69.9
+Sethiathope__Cuddalore_BHUVANAGIRI_Sethiathope__11.46667_79.63333,Sethiathope,Cuddalore,59,2000-11-05 06:00:00,2024-01-10 00:00:00,3.15,60.440002
+T.Konakapadi__Salem_THARAMANGALAM_T.Konakapadi__11.67917_78.01667,T.Konakapadi,Salem,18,1998-05-15 06:00:00,2007-01-05 06:00:00,-0.6,71.4
+T.Krishnapuram__Madurai_SEDAPATTI_T.Krishnapuram__9.80444_77.66917,T.Krishnapuram,Madurai,10,2012-05-15 06:00:00,2024-11-30 00:00:00,5.2,117.1
+Ulundurpet2__Viluppuram_ULUNDURPETTAI_Ulundurpet__11.68750_79.30000,Ulundurpet2,Viluppuram,97,1996-01-05 06:00:00,2025-01-30 00:00:00,0.0,62.0
+Vadalur1__Cuddalore_KURINCHIPADI_Vadalur__11.53750_79.54167,Vadalur1,Cuddalore,7,2013-11-05 06:00:00,2024-05-30 00:00:00,5.67,79.76
+Vadalur__Cuddalore_KURINCHIPADI_Vadalur__11.53750_79.54167,Vadalur,Cuddalore,92,1996-01-05 06:00:00,2024-05-30 00:00:00,0.03,58.3
+Velakaundanpatti__Namakkal_ELACHIPALAYAM_Velakaundanpatti__11.28750_78.08472,Velakaundanpatti,Namakkal,49,1998-05-15 06:00:00,2023-08-30 00:00:00,2.4,70.15
+Vinnampalli__Erode_BHAVANISAGAR_Vinnampalli__11.43278_77.20222,Vinnampalli,Erode,7,2012-05-15 06:00:00,2024-11-30 00:00:00,17.16,119.35

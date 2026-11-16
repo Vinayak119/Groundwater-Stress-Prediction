@@ -1,0 +1,28 @@
+{
+  "source_files": [
+    {
+      "file": "gwl_manual_quarterly_cgwb_tn_1991_2020.csv",
+      "rows": 64744,
+      "sha256": "d529771686cd2b79de52cc3c2eaa4fd327645f14f33afb5d271a00b5f11ad6b9"
+    },
+    {
+      "file": "gwl_manual_quarterly_cgwb_tn_2021_2025.csv",
+      "rows": 12379,
+      "sha256": "c0f0a0d8c2c03433d8b33493a48f9177dfc2201579ff4548ad51378e7327b93e"
+    }
+  ],
+  "initial_rows": 77123,
+  "eligible_rows": 77040,
+  "quarantined_rows": 83,
+  "invalid_dates": 0,
+  "missing_or_invalid_gwl": 30,
+  "maruthur2_quarantined": 52,
+  "tiruvalangadu_minus_97_quarantined": 1,
+  "provisional_station_count": 2318,
+  "location_date_conflict_groups": 8,
+  "negative_readings_retained": 216,
+  "zero_readings_retained": 21,
+  "positive_readings_retained": 76803,
+  "date_min": "1996-01-05 06:00:00",
+  "date_max": "2025-01-30 00:00:00"
+}

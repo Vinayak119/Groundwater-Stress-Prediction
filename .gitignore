@@ -1,0 +1,42 @@
+﻿# Python environment
+.venv/
+venv/
+env/
+
+# Python cache and build files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary files and logs
+*.log
+*.tmp
+*.bak
+
+# Original teammate project and local backups
+reference/
+
+# Original raw source files (retain locally)
+data/raw/
+
+# Intermediate datasets not required by the dashboard
+data/processed/forecasting_pairs_next_observation_150d.csv
+data/processed/forecasting_pairs_temporally_purged.csv
+data/processed/observations_location_keyed.csv
